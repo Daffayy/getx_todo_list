@@ -1,15 +1,16 @@
+import 'package:get/get.dart';
+import 'package:getx_todo_list/app/data/services/storage/providers/task/provider.dart';
+import 'package:getx_todo_list/app/data/services/storage/repository.dart';
+import 'package:getx_todo_list/app/modules/home/controller.dart';
 
-
-import 'package:flutter/material.dart';
-
-class HomePage  extends StatelessWidget {
-  const HomePage ({Key? key}) : super(key: key);
-
+class HomeBinding implements Bindings {
   @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Home Page'),
+  void dependencies() {
+    Get.lazyPut(
+      () => HomeController(
+        taskRepository: TaskRepository(
+          taskProvider: TaskProvider(),
+        ),
       ),
     );
   }
