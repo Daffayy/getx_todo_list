@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:getx_todo_list/app/data/services/storage/models/task.dart';
 import 'package:getx_todo_list/app/data/services/storage/repository.dart';
 
@@ -10,7 +9,9 @@ class HomeController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final editCtrl = TextEditingController();
   final chipIndex = 0.obs;
+  final deleting = false.obs;
   final tasks = <Task>[].obs;
+  final task = Rx<Task?>(null);
 
   @override
   void onInit() {
@@ -21,19 +22,49 @@ class HomeController extends GetxController {
 
   @override
   void onClose() {
+    editCtrl.dispose();
     super.onClose();
-
   }
+
   void changeChipIndex(int value) {
     chipIndex.value = value;
   }
 
-  bool addTask(Task task){
-    if(tasks.contains(task)) {
+  void changeDeleting(bool value) {
+    deleting.value = value;
+  }
+
+  void changeTask(Task? select) {
+    task.value = select;
+  }
+
+  bool addTask(Task task) {
+    if (tasks.contains(task)) {
       return false;
     }
     tasks.add(task);
     return true;
   }
 
+  void deleteTask(Task task) {
+    tasks.remove(task);
+  }
+
+  updateTask(Task task, String title) {
+    var todos = task.todos ?? [];
+    if (containeTodo(todos, title)) {
+      return false;
+    }
+    var todo = {'title' : title, 'done' : false};
+    todos.add(todo);
+    var newTask = task.copyWith(todos: todos);
+    int oldIdx = tasks.indexOf(task);
+    tasks[oldIdx] = newTask;
+    tasks.refresh();
+    return true;
+  }
+
+  bool containeTodo(List todos, String title) {
+    return todos.any((element) => element['title'] == title);
+  }
 }
